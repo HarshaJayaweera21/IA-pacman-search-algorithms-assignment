@@ -86,18 +86,80 @@ def depthFirstSearch(problem: SearchProblem):
     print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    fringe = util.Stack()
+    expanded = set() # Stores states that are already expanded
+
+    start = problem.getStartState()
+    fringe.push((start, []))
+
+    while not fringe.isEmpty():
+        state, path = fringe.pop()
+
+        if state in expanded:
+            continue
+
+        expanded.add(state)
+
+        if problem.isGoalState(state):
+            return path
+        
+        # Expand the successors
+        for successor, action, stepCost in problem.getSuccessors(state):
+            if successor not in expanded:
+                fringe.push((successor, path + [action]))
+
+    return []
 
 def breadthFirstSearch(problem: SearchProblem):
     """Search the shallowest nodes in the search tree first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    fringe = util.Queue()
+    expanded = set()
+
+    start = problem.getStartState()
+    fringe.push((start, []))
+
+    while not fringe.isEmpty():
+        state, path = fringe.pop()
+
+        if state in expanded:
+            continue
+
+        expanded.add(state)
+
+        if problem.isGoalState(state):
+            return path
+
+        for successor, action, stepCost in problem.getSuccessors(state):
+            if successor not in expanded:
+                fringe.push((successor, path + [action]))
+
+    return[]
 
 def uniformCostSearch(problem: SearchProblem):
     """Search the node of least total cost first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    fringe = util.PriorityQueue()
+    best_cost = {}
+
+    start = problem.getStartState()
+
+    fringe.push((start, [], 0), 0)  # fringe.push( ITEM, PRIORITY )
+    best_cost[start] = 0
+
+    while not fringe.isEmpty():
+        state, path, cost = fringe.pop()
+
+        if problem.isGoalState(state):
+            return path
+
+        for successor, action, stepCost in problem.getSuccessors(state):
+            newCost = cost + stepCost
+
+            if successor not in best_cost or newCost < best_cost[successor]:
+                best_cost[successor] = newCost
+                fringe.push((successor, path + [action], newCost), newCost)
+
+
+    return []
 
 def nullHeuristic(state, problem=None):
     """
