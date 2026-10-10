@@ -1,4 +1,7 @@
-# Byte-compiled / optimized / DLL files
+# Python cache files
 __pycache__/
 *.py[cod]
 *$py.class
+
+# JetBrains IDE files (PyCharm / IntelliJ)
+.idea/
