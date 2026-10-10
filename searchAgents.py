@@ -387,9 +387,55 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
     """
     corners = problem.corners # These are the corner coordinates
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
+    position, visited = state
 
-    "*** YOUR CODE HERE ***"
-    return 0 # Default to trivial solution
+    # Find the corners that have not been visited
+    remaining = [
+        corner
+        for i, corner in enumerate(corners)
+        if not visited[i]
+    ]
+
+    # No remaining corners means the goal is reached
+    if not remaining:
+        return 0
+
+    # Minimum Manhattan distance from Pacman to an unvisited corner
+    x, y = position
+    nearest_distance = min(
+        abs(x - cx) + abs(y - cy)
+        for cx, cy in remaining
+    )
+
+    # Build a minimum spanning tree of the remaining corners
+    # using Manhattan distances as edge weights
+    connected = {0}
+    total_mst = 0
+
+    while len(connected) < len(remaining):
+        min_distance = float('inf')
+        next_point = None
+
+        # Find the shortest edge connecting the tree
+        # to a point that is not yet connected
+        for i in connected:
+            x1, y1 = remaining[i]
+
+            for j in range(len(remaining)):
+                if j not in connected:
+                    
+                    x2, y2 = remaining[j]
+
+                    distance = (abs(x1 - x2) + abs(y1 - y2))
+
+                    if distance < min_distance:
+                        min_distance = distance
+                        next_point = j
+
+        total_mst += min_distance
+        connected.add(next_point)
+
+    return nearest_distance + total_mst
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
