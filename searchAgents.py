@@ -295,15 +295,19 @@ class CornersProblem(search.SearchProblem):
         Returns the start state (in your state space, not the full Pacman state
         space)
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        position = self.startingPosition
+
+        visited = tuple(position == corner for corner in self.corners) # Creates tuple with 4 boolean values
+
+        return (position, visited)
 
     def isGoalState(self, state: Any):
         """
         Returns whether this search state is a goal state of the problem.
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        position, visited = state
+
+        return all(visited) # returns True only when every value in the tuple is True.
 
     def getSuccessors(self, state: Any):
         """
@@ -317,6 +321,10 @@ class CornersProblem(search.SearchProblem):
         """
 
         successors = []
+
+        position, visited = state
+        x, y = position
+
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             # Add a successor state to the successor list if the action is legal
             # Here's a code snippet for figuring out whether a new position hits a wall:
@@ -325,9 +333,29 @@ class CornersProblem(search.SearchProblem):
             #   nextx, nexty = int(x + dx), int(y + dy)
             #   hitsWall = self.walls[nextx][nexty]
 
-            "*** YOUR CODE HERE ***"
+            dx, dy = Actions.directionToVector(action)
+
+            nextx = int(x + dx)
+            nexty = int(y + dy)
+
+            # Check whether the next position is a wall
+            if not self.walls[nextx][nexty]:
+                nextPosition = (nextx, nexty)
+
+                # Update the visited-corner information
+                nextVisited = tuple(
+                    visited[i] or nextPosition == corner
+                    for i, corner in enumerate(self.corners)  # enumerate() gives us both the index and the corner coordinate
+                )
+
+                # Construct the new search state
+                nextState = (nextPosition, nextVisited)
+
+                # Record successor, action and step cost
+                successors.append((nextState, action, 1))
 
         self._expanded += 1 # DO NOT CHANGE
+
         return successors
 
     def getCostOfActions(self, actions):
@@ -378,32 +406,7 @@ class FoodSearchProblem:
       pacmanPosition: a tuple (x,y) of integers specifying Pacman's position
       foodGrid:       a Grid (see game.py) of either True or False, specifying remaining food
     """
-    def __init__(self, startingGameState: pacman.GameState):
-        self.start = (startingGameState.getPacmanPosition(), startingGameState.getFood())
-        self.walls = startingGameState.getWalls()
-        self.startingGameState = startingGameState
-        self._expanded = 0 # DO NOT CHANGE
-        self.heuristicInfo = {} # A dictionary for the heuristic to store information
-
-    def getStartState(self):
-        return self.start
-
-    def isGoalState(self, state):
-        return state[1].count() == 0
-
-    def getSuccessors(self, state):
-        "Returns successor states, the actions they require, and a cost of 1."
-        successors = []
-        self._expanded += 1 # DO NOT CHANGE
-        for direction in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
-            x,y = state[0]
-            dx, dy = Actions.directionToVector(direction)
-            nextx, nexty = int(x + dx), int(y + dy)
-            if not self.walls[nextx][nexty]:
-                nextFood = state[1].copy()
-                nextFood[nextx][nexty] = False
-                successors.append( ( ((nextx, nexty), nextFood), direction, 1) )
-        return successors
+    
 
     def getCostOfActions(self, actions):
         """Returns the cost of a particular sequence of actions.  If those actions
